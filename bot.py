@@ -1,10 +1,8 @@
-# File: bot.py (versi Manajer dengan Peningkatan Jaringan - FIX)
-# Tugasnya hanya mendaftarkan semua handler dari file lain dan menjalankan bot.
+# File: bot.py (versi Manajer - Perbaikan Final Jaringan)
 
 import os
 from telegram.ext import Application, CommandHandler
-# --- PERBAIKAN DI BARIS INI ---
-from telegram.ext import ExtBot # Lokasi yang benar untuk mengatur jaringan
+from telegram.request import Request # <- Kita coba import dari sini, ini lokasi yang lebih umum
 
 # Memanggil "departemen-departemen" kita
 from src.conversation import conv_handler # Alur konversi
@@ -18,13 +16,13 @@ def main() -> None:
         print("FATAL ERROR: TELEGRAM_TOKEN is not set!")
         return
 
-    # --- PENINGKATAN JARINGAN ---
-    # Kita buat bot lebih "sabar" saat mencoba terhubung ke Telegram.
-    # Waktu tunggu koneksi dan baca dinaikkan menjadi 15 detik.
-    bot = ExtBot(token=TELEGRAM_TOKEN, connect_timeout=15.0, read_timeout=15.0)
+    # --- PENINGKATAN JARINGAN (CARA BARU & LEBIH AMAN) ---
+    # Kita buat objek Request untuk mengatur timeout
+    # Ini akan membuat bot lebih sabar menunggu koneksi (30 detik) dan membaca data (30 detik)
+    request = Request(connect_timeout=30.0, read_timeout=30.0)
     
     # Masukkan pengaturan jaringan baru ke dalam Application Builder
-    application = Application.builder().bot(bot).build()
+    application = Application.builder().token(TELEGRAM_TOKEN).request(request).build()
     
     # Daftarkan semua handler ke aplikasi
     application.add_handler(conv_handler)
@@ -33,7 +31,7 @@ def main() -> None:
     application.add_handler(CommandHandler("cancel", cancel_outside_conversation))
     
     print("Bot v1.0 (Struktur Rapi) sedang berjalan...")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling()
 
 
 if __name__ == "__main__":
