@@ -1,8 +1,8 @@
-# File: bot.py (versi Manajer - Perbaikan Final Jaringan)
+# File: bot.py (Versi Paling Sederhana dan Stabil)
 
 import os
 from telegram.ext import Application, CommandHandler
-from telegram.request import Request # <- Kita coba import dari sini, ini lokasi yang lebih umum
+from telegram.constants import Update # <-- Tambahan import untuk allowed_updates
 
 # Memanggil "departemen-departemen" kita
 from src.conversation import conv_handler # Alur konversi
@@ -16,13 +16,10 @@ def main() -> None:
         print("FATAL ERROR: TELEGRAM_TOKEN is not set!")
         return
 
-    # --- PENINGKATAN JARINGAN (CARA BARU & LEBIH AMAN) ---
-    # Kita buat objek Request untuk mengatur timeout
-    # Ini akan membuat bot lebih sabar menunggu koneksi (30 detik) dan membaca data (30 detik)
-    request = Request(connect_timeout=30.0, read_timeout=30.0)
-    
-    # Masukkan pengaturan jaringan baru ke dalam Application Builder
-    application = Application.builder().token(TELEGRAM_TOKEN).request(request).build()
+    # --- KEMBALI KE BUILDER STANDAR ---
+    # Kita tidak mengatur jaringan secara manual untuk menghindari error import.
+    # Kita biarkan library menggunakan pengaturan default yang sudah dioptimalkan.
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
     
     # Daftarkan semua handler ke aplikasi
     application.add_handler(conv_handler)
@@ -31,7 +28,9 @@ def main() -> None:
     application.add_handler(CommandHandler("cancel", cancel_outside_conversation))
     
     print("Bot v1.0 (Struktur Rapi) sedang berjalan...")
-    application.run_polling()
+    
+    # Menjalankan bot
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == "__main__":
