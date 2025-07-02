@@ -23,7 +23,8 @@ from .translations import TRANSLATIONS
 # --- KONFIGURASI & LOGIC ---
 logger = logging.getLogger(__name__)
 
-CONVERTER_SCRIPT = "sticker-convert"
+# Menghapus variabel lama, kita akan memanggil modul secara langsung
+# CONVERTER_SCRIPT = "sticker-convert" 
 PLATFORMS_NEEDING_TOKEN = ['discord', 'kakaotalk']
 MAX_CONCURRENT_USERS = 2
 CURRENT_CONVERSIONS = 0
@@ -145,8 +146,10 @@ async def receive_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         output_dir = os.path.join("converted_output", str(chat_id))
         os.makedirs(output_dir, exist_ok=True)
         
+        # Mengubah cara pemanggilan skrip menjadi pemanggilan modul (-m)
+        # Ini lebih stabil dan portabel daripada memanggil skrip secara langsung.
         command = [
-            "python3", CONVERTER_SCRIPT, platform, "download", user_url,
+            "python3", "-m", "sticker_convert", platform, "download", user_url,
             "--output", output_dir, "--preset", preset, "--steps", "16", "--processes", "1"
         ]
         if token: command.extend(["--token", token])
