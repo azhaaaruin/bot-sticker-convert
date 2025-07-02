@@ -1,9 +1,10 @@
-# File: bot.py (versi Manajer dengan Peningkatan Jaringan)
+# File: bot.py (versi Manajer dengan Peningkatan Jaringan - FIX)
 # Tugasnya hanya mendaftarkan semua handler dari file lain dan menjalankan bot.
 
 import os
 from telegram.ext import Application, CommandHandler
-from telegram.request import Request # <-- IMPORT BARU untuk mengatur jaringan
+# --- PERBAIKAN DI BARIS INI ---
+from telegram.ext import ExtBot # Lokasi yang benar untuk mengatur jaringan
 
 # Memanggil "departemen-departemen" kita
 from src.conversation import conv_handler # Alur konversi
@@ -19,11 +20,11 @@ def main() -> None:
 
     # --- PENINGKATAN JARINGAN ---
     # Kita buat bot lebih "sabar" saat mencoba terhubung ke Telegram.
-    # Waktu tunggu koneksi dan baca dinaikkan menjadi 10 detik.
-    request = Request(connect_timeout=10.0, read_timeout=10.0)
+    # Waktu tunggu koneksi dan baca dinaikkan menjadi 15 detik.
+    bot = ExtBot(token=TELEGRAM_TOKEN, connect_timeout=15.0, read_timeout=15.0)
     
     # Masukkan pengaturan jaringan baru ke dalam Application Builder
-    application = Application.builder().token(TELEGRAM_TOKEN).request(request).build()
+    application = Application.builder().bot(bot).build()
     
     # Daftarkan semua handler ke aplikasi
     application.add_handler(conv_handler)
