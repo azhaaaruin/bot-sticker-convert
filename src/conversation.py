@@ -156,8 +156,15 @@ async def receive_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
         logger.info(f"Executing command: {' '.join(command)}")
         
-        # Menggunakan Popen untuk membaca output secara real-time
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8')
+        # Modifikasi: Pisahkan stdout dan stderr untuk menangkap error dengan lebih baik
+        process = subprocess.Popen(
+            command, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,  # Tangkap stderr secara terpisah
+            text=True, 
+            encoding='utf-8',
+            errors='replace' # Menghindari error decoding jika ada karakter aneh
+        )
 
         for line in iter(process.stdout.readline, ''):
             logger.info(f"Engine output: {line.strip()}")
@@ -190,7 +197,11 @@ async def receive_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         return_code = process.wait()
 
         if return_code != 0:
-            await progress_message.edit_text(get_text('error', lang).format(error_message="Proses gagal, cek log server."), parse_mode=ParseMode.HTML)
+            # Jika gagal, baca semua dari stderr, log, dan kirim ke pengguna
+            error_output = process.stderr.read()
+            logger.error(f"Subprocess failed with code {return_code}. Stderr:\n{error_output}")
+            error_message_for_user = get_text('error', lang).format(error_message=f"\n<pre>{error_output}</pre>")
+            await progress_message.edit_text(error_message_for_user, parse_mode=ParseMode.HTML)
         else:
             await progress_message.edit_text(get_text('progress_finished', lang), parse_mode=ParseMode.HTML)
             hasil_konversi = sorted(os.listdir(output_dir))
