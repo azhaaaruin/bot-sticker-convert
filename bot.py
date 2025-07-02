@@ -2,7 +2,6 @@
 
 import os
 from telegram.ext import Application, CommandHandler
-from telegram.constants import Update # <-- Tambahan import untuk allowed_updates
 
 # Memanggil "departemen-departemen" kita
 from src.conversation import conv_handler # Alur konversi
@@ -29,8 +28,8 @@ def main() -> None:
     
     print("Bot v1.0 (Struktur Rapi) sedang berjalan...")
     
-    # Menjalankan bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    # Menjalankan bot dengan cara baru yang lebih stabil (tanpa allowed_updates)
+    application.run_polling()
 
 
 if __name__ == "__main__":
