@@ -149,7 +149,7 @@ async def receive_url(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         # Mengubah cara pemanggilan skrip menjadi pemanggilan modul (-m)
         # Ini lebih stabil dan portabel daripada memanggil skrip secara langsung.
         command = [
-            "python3", "-m", "sticker_convert", platform, "download", user_url,
+            "python3", "-m", "src.sticker_convert", platform, "download", user_url,
             "--output", output_dir, "--preset", preset, "--steps", "16", "--processes", "1"
         ]
         if token: command.extend(["--token", token])
